@@ -1,10 +1,13 @@
 {
-  "name": "Eshop",
-  "short_name": "Eshop",
-  "start_url": ".",
+  "id": "./",
+  "name": "E-Shop",
+  "short_name": "E-Shop",
+  "description": "La boutique E-Shop sur votre appareil.",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-"background_color": "#121212",
-  "theme_color": "#121212",
+  "background_color": "#ffffff",
+  "theme_color": "#ff7a00",
   "icons": [
     {
       "src": "avatar-192x192.png",
