@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#ff7a00">
 <title>E-Shop</title>
 <script>
   /* Applique le thème mémorisé avant l'affichage (évite le flash) */
@@ -194,7 +196,12 @@
   }
 
   /* ---------- VUES ---------- */
-  main { padding: 24px 16px; max-width: 640px; margin: 0 auto; }
+  main { padding: 24px 16px; max-width: 100%; margin: 0 auto; }
+  main > .vue { width: 100%; max-width: 1120px; margin-left: auto; margin-right: auto; }
+  main > #vue-compte { max-width: 1120px; }
+  main > #vue-auth { max-width: none; }
+  #vue-auth .auth-fond { left: calc((100vw - 100%) / -2 - 16px); right: calc((100vw - 100%) / -2 - 16px); }
+  #vue-auth > :not(.auth-fond) { width: min(100%, 680px); margin-left: auto; margin-right: auto; }
   main h1 { font-size: 26px; margin-bottom: 8px; }
   main p { color: var(--texte-doux); line-height: 1.5; }
   .vue { display: none; }
@@ -746,11 +753,35 @@
   @keyframes flotte { 50% { transform: translateY(-7px) rotate(var(--r)); } }
   .auth-carte { position: relative; z-index: 1; }
 
-  .auth-carte { margin-top: 20px; padding: 20px; border-radius: 26px; background: var(--surface-2); border: 1px solid var(--ligne); }
+  .auth-entete { position: relative; z-index: 1; margin: 0 4px; }
+  .auth-badge {
+    display: inline-flex; align-items: center; gap: 7px; margin-bottom: 12px; padding: 6px 10px;
+    border: 1px solid rgba(var(--accent-rgb), .3); border-radius: 999px;
+    background: rgba(var(--accent-rgb), .1); color: var(--orange); font-size: 11px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+  .auth-badge svg { width: 14px; height: 14px; stroke: currentColor; }
+  #vue-auth h1 { font-size: clamp(28px, 7vw, 36px); letter-spacing: -.7px; }
+  #vue-auth #authSous { max-width: 36ch; margin-top: 5px; font-size: 14px; }
+  .auth-carte { margin-top: 20px; padding: 20px; border-radius: 26px; background: var(--surface-2); border: 1px solid var(--ligne); box-shadow: 0 16px 38px rgba(0, 0, 0, .12); }
   .auth-carte .seg { margin: 0 0 20px; background: var(--bg); }
   .auth-carte .champ-form input { background: var(--bg); }
   .champ-form .lbl { display: flex; align-items: center; gap: 6px; }
   .champ-form .lbl svg { flex: none; width: 14px; height: 14px; stroke: var(--orange); }
+  .about-carte {
+    margin-top: 18px; padding: 22px; border: 1px solid var(--ligne); border-radius: 22px;
+    background: linear-gradient(145deg, rgba(var(--accent-rgb), .12), var(--surface-2) 58%);
+  }
+  .about-marque {
+    display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: 16px;
+    border-radius: 17px; background: linear-gradient(135deg, var(--orange-clair), var(--orange-vif));
+    color: var(--sur-accent); font-size: 17px; font-weight: 900; letter-spacing: -.5px;
+  }
+  .about-carte h2 { margin-bottom: 8px; font-size: 20px; }
+  .about-carte p { font-size: 14px; }
+  .about-credit { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--ligne); }
+  .about-credit span { display: block; color: var(--texte-doux); font-size: 12px; }
+  .about-credit strong { display: block; margin-top: 4px; font-size: 15px; }
 
   /* ---------- ADAPTATION : mobile, tablette, ordinateur ---------- */
   @media (min-width: 640px) {
@@ -760,7 +791,10 @@
     body { padding-bottom: 48px; }
     .header { padding-left: 32px; padding-right: 32px; }
     main { max-width: 1120px; padding: 32px 32px 24px; }
-    .vue:not(#vue-accueil):not(#vue-categories):not(#vue-produit):not(#vue-favoris):not(#vue-recherche) { max-width: 680px; margin-left: auto; margin-right: auto; }
+    .vue:not(#vue-accueil):not(#vue-categories):not(#vue-produit):not(#vue-favoris):not(#vue-recherche):not(#vue-compte):not(#vue-auth) { max-width: 680px; margin-left: auto; margin-right: auto; }
+    #vue-compte { max-width: 1120px; }
+    #vue-auth { max-width: none; }
+    #vue-auth > :not(.auth-fond) { width: min(100%, 760px); }
     .bandes { margin: 0; border: 1px solid var(--ligne); border-radius: 20px; overflow: hidden; }
     .hero { margin: 0; border-radius: 28px; padding: 36px 32px 30px; }
     .palettes { grid-template-columns: repeat(6, 1fr); }
@@ -1000,6 +1034,10 @@
     <div class="bandes si-connecte" style="margin-top:26px">
       <button class="bande danger" id="btnDeconnexion" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg><span class="bande-nom">Se déconnecter</span></button>
     </div>
+    <div class="groupe-titre">À propos</div>
+    <div class="bandes">
+      <button class="bande" type="button" data-aller="about"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span class="bande-nom">À propos de E-Shop</span><svg class="fleche" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+    </div>
   </section>
 
   <!-- Commandes -->
@@ -1181,8 +1219,11 @@
       <span class="sticker neutre" style="top:93%;right:20%;--t:46px;--r:12deg;--d:2.1s"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
     </div>
     <button class="retour" type="button" data-retour><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Compte</button>
-    <h1 id="authTitre">Connexion</h1>
-    <p class="doux" id="authSous">Content de te revoir sur E-Shop.</p>
+    <div class="auth-entete">
+      <span class="auth-badge"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/><path d="m9 12 2 2 4-4"/></svg>Espace client</span>
+      <h1 id="authTitre">Connexion</h1>
+      <p class="doux" id="authSous">Content de te revoir sur E-Shop.</p>
+    </div>
 
     <div class="auth-carte">
     <div class="seg" role="tablist" aria-label="Identification">
@@ -1238,6 +1279,22 @@
     <p class="info-form" id="authInfo" role="status"></p>
     <button class="btn-plein" id="authValider" type="button" style="margin-top:4px">Se connecter</button>
     <p class="auth-perdu" id="authPerdu">Mot de passe perdu ? Il ne peut pas être récupéré.</p>
+    </div>
+  </section>
+
+  <!-- À propos -->
+  <section class="vue" id="vue-about">
+    <button class="retour" type="button" data-retour="compte"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Compte</button>
+    <h1>À propos</h1>
+    <p class="aide">En savoir plus sur E-Shop.</p>
+    <div class="about-carte">
+      <div class="about-marque" aria-hidden="true">E-S</div>
+      <h2>E-Shop</h2>
+      <p>Votre boutique en ligne pour découvrir et retrouver vos articles préférés.</p>
+      <div class="about-credit">
+        <span>Cette application a été créée par</span>
+        <strong>ADAMAN Kouame Kan Joel</strong>
+      </div>
     </div>
   </section>
 
@@ -1535,7 +1592,7 @@
   // Les sous-pages gardent actif l'onglet de leur page d'origine
   const PARENT = {
     commandes: 'compte', paiements: 'compte', service: 'compte',
-    theme: 'compte', palette: 'compte', barre: 'compte', recents: 'compte', auth: 'compte', evenements: 'accueil'
+    theme: 'compte', palette: 'compte', barre: 'compte', recents: 'compte', auth: 'compte', about: 'compte', evenements: 'accueil'
   };
 
   function afficherVue(nom) {
@@ -2324,5 +2381,15 @@
   champ.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); lancerRecherche(); } });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && rechercheOuverte()) fermerRecherche(); });
 </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(err => console.error("Échec du service worker :", err));
+      });
+    }
+  </script>
 </body>
 </html>
+
+
+
