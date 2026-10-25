@@ -1,17 +1,21 @@
-const CACHE_NAME = 'eshop-cache-v2';
-const APP_ROOT = new URL('./', self.registration.scope);
-const APP_SHELL = [
+/* E-Shop : service worker (hors ligne + mise à jour automatique) */
+const VERSION = 'eshop-v3';
+const CACHE_APP = VERSION + '-app';
+const CACHE_FONTS = VERSION + '-fonts';
+
+const FICHIERS = [
   './',
   './index.html',
   './manifest.json',
-  './avatar-192x192.png',
-  './avatar-512x512.png'
-].map(path => new URL(path, APP_ROOT).toString());
+  './logo.png',
+  './icon-192x192.png',
+  './icon-512x512.png'
+];
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(APP_SHELL))
+    caches.open(CACHE_APP)
+      .then(cache => Promise.allSettled(FICHIERS.map(f => cache.add(f))))
       .then(() => self.skipWaiting())
   );
 });
@@ -19,32 +23,49 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(key => key.startsWith('eshop-cache-') && key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      ))
+      .then(noms => Promise.all(noms.filter(n => !n.startsWith(VERSION)).map(n => caches.delete(n))))
       .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', event => {
-  const request = event.request;
-  const url = new URL(request.url);
-  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
-
-  event.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
-      return fetch(request).then(response => {
-        if (response.ok && url.origin === self.location.origin) {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
-        }
-        return response;
-      }).catch(() => {
-        if (request.mode === 'navigate') return caches.match(new URL('./index.html', APP_ROOT).toString());
-        return Response.error();
-      });
+// Réponse du cache tout de suite, mise à jour en arrière-plan
+function ancienPuisReseau(requete, nomCache) {
+  return caches.open(nomCache).then(cache =>
+    cache.match(requete).then(enCache => {
+      const reseau = fetch(requete).then(rep => {
+        if (rep && (rep.ok || rep.type === 'opaque')) cache.put(requete, rep.clone());
+        return rep;
+      }).catch(() => enCache);
+      return enCache || reseau;
     })
   );
+}
+
+self.addEventListener('fetch', event => {
+  const requete = event.request;
+  if (requete.method !== 'GET') return;
+  const url = new URL(requete.url);
+
+  // Pages : le réseau d'abord (toujours à jour), sinon la version enregistrée
+  if (requete.mode === 'navigate') {
+    event.respondWith(
+      fetch(requete).then(rep => {
+        if (rep && rep.ok) { const copie = rep.clone(); caches.open(CACHE_APP).then(c => c.put('./index.html', copie)); }
+        return rep;
+      }).catch(() => caches.match('./index.html').then(r => r || caches.match('./')))
+    );
+    return;
+  }
+
+  // Polices Google
+  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
+    event.respondWith(ancienPuisReseau(requete, CACHE_FONTS));
+    return;
+  }
+
+  // Fichiers et images du site
+  if (url.origin === self.location.origin) {
+    event.respondWith(ancienPuisReseau(requete, CACHE_APP));
+  }
+  // Tout le reste (base de données, API) passe directement par le réseau
 });
