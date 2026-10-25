@@ -1,5 +1,5 @@
 /* E-Shop : service worker (hors ligne + mise à jour automatique) */
-const VERSION = 'eshop-v3';
+const VERSION = 'eshop-v4';
 const CACHE_APP = VERSION + '-app';
 const CACHE_FONTS = VERSION + '-fonts';
 
@@ -7,7 +7,7 @@ const FICHIERS = [
   './',
   './index.html',
   './manifest.json',
-  './logo.png',
+  './logo-h.png',
   './icon-192x192.png',
   './icon-512x512.png'
 ];
