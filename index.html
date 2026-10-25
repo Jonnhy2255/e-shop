@@ -2,9 +2,13 @@
 <html lang="fr" data-theme="sombre">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#ff7a00">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192x192.png">
+<link rel="apple-touch-icon" href="./icon-192x192.png">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>E-Shop</title>
 <script>
   /* Applique le thème mémorisé avant l'affichage (évite le flash) */
@@ -12,6 +16,11 @@
     var t = localStorage.getItem('eshop_theme');
     if (t === 'clair' || t === 'sombre') document.documentElement.dataset.theme = t;
   } catch (e) {}
+  /* Barre d'état : suit uniquement le thème clair / sombre */
+  (function () {
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', document.documentElement.dataset.theme === 'clair' ? '#ffffff' : '#000000');
+  })();
 </script>
 <style>
   :root {
@@ -26,7 +35,7 @@
     --header-h: 64px;
     --nav-h: 68px;
   }
-
+ 
   /* Thème sombre (par défaut) : noir dominant */
   :root, :root[data-theme="sombre"] {
     --bg: #000000;
@@ -40,7 +49,7 @@
     --ok: #3ddc84;
     color-scheme: dark;
   }
-
+ 
   /* Thème clair */
   :root[data-theme="clair"] {
     --bg: #ffffff;
@@ -54,10 +63,18 @@
     --ok: #1b8a4b;
     color-scheme: light;
   }
-
+ 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { min-height: 100%; }
-
+  /* Pas de sélection/copie de texte, pas de zoom */
+  html, body {
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+    touch-action: pan-x pan-y;
+  }
+  input, textarea { -webkit-user-select: text; user-select: text; }
+  img { -webkit-user-drag: none; user-drag: none; }
+ 
   body {
     background: var(--bg);
     color: var(--texte);
@@ -66,10 +83,10 @@
     padding-bottom: calc(var(--nav-h) + 48px + env(safe-area-inset-bottom, 0px));
     transition: background .25s ease, color .25s ease;
   }
-
+ 
   button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
   button:focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; }
-
+ 
   /* ---------- HEADER ---------- */
   .header {
     position: fixed; top: 0; left: 0; right: 0; z-index: 50;
@@ -80,11 +97,11 @@
     border-bottom: 1px solid var(--ligne);
     transition: background .25s ease;
   }
-
+ 
   .logo { display: flex; align-items: center; gap: 2px; text-decoration: none; color: var(--texte); }
-  .logo svg { height: 30px; width: auto; display: block; }
+  .logo img { height: 34px; width: auto; display: block; -webkit-user-drag: none; }
   .logo-texte { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
-
+ 
   .btn-icone {
     position: relative; width: 44px; height: 44px; border-radius: 50%;
     display: grid; place-items: center;
@@ -94,7 +111,7 @@
   }
   .btn-icone:active { transform: scale(.92); }
   .btn-icone svg { width: 22px; height: 22px; stroke: var(--sur-accent); }
-
+ 
   /* ---------- HEADER : la recherche se déploie depuis le bouton ---------- */
   .logo, .header-user { transition: opacity .2s ease, visibility .2s ease; }
   .btn-icone svg { grid-area: 1 / 1; transition: transform .3s ease, opacity .2s ease; }
@@ -130,7 +147,7 @@
     .barre-recherche { left: auto; right: calc(32px + 44px + 10px); width: min(760px, calc(100% - 560px)); }
     body.recherche-ouverte .nav { opacity: 0; visibility: hidden; pointer-events: none; }
   }
-
+ 
   /* ---------- ACCUEIL : rayons d'articles (le nom du rayon est dans la carte) ---------- */
   .rayons { display: flex; flex-direction: column; gap: 16px; margin-top: 18px; }
   .rayon { padding: 14px 0 10px; border-radius: 24px; overflow: hidden; background: var(--surface-2); border: 1px solid var(--ligne); }
@@ -172,28 +189,49 @@
   .rayon-piste::-webkit-scrollbar { display: none; }
   /* Cartes longues : photo en hauteur, nom, description, prix */
   .produit.long {
-    flex: 0 0 150px; scroll-snap-align: start; display: flex; padding: 8px 8px 10px;
+    flex: 0 0 172px; scroll-snap-align: start; display: flex; padding: 9px 9px 12px;
     background: var(--bg); border: 1px solid var(--ligne); border-radius: 18px; color: var(--texte);
   }
   .produit.long .produit-ouvrir { gap: 4px; height: 100%; }
   .produit.long .produit-img { aspect-ratio: 4 / 5; border: 0; border-radius: 12px; }
-  .produit.long .produit-nom { margin-top: 4px; font-size: 13.5px; }
+  .produit.long .produit-nom { margin-top: 5px; font-size: 14.5px; }
   .produit-desc {
     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-    font-size: 11.5px; line-height: 1.4; color: var(--texte-doux);
+    font-size: 12.5px; line-height: 1.4; color: var(--texte-doux);
   }
-  .produit.long .produit-prix { margin-top: auto; padding-top: 4px; font-size: 13.5px; }
+  .produit.long .produit-prix { margin-top: auto; padding-top: 4px; font-size: 14.5px; }
   .produit.long .coeur { top: 14px; right: 14px; width: 30px; height: 30px; }
   .produit.long .coeur svg { width: 16px; height: 16px; }
-  @media (min-width: 640px) { .produit.long { flex-basis: 170px; } }
+  @media (min-width: 640px) { .produit.long { flex-basis: 190px; } }
   @media (min-width: 900px) {
     .rayon { padding: 18px 0 12px; }
     .rayon-tete { padding: 0 22px; }
     .rayon-tete h2 { font-size: 20px; }
     .rayon-piste { padding: 14px 22px 8px; scroll-padding-left: 22px; }
-    .produit.long { flex-basis: 200px; }
+    .produit.long { flex-basis: 220px; }
     .rayon-nav { display: flex; }
   }
+ 
+  /* ---------- ACCUEIL : sélecteur + articles deux par ligne ---------- */
+  .selection { margin-top: 22px; }
+  .selecteur {
+    display: flex; gap: 6px; padding: 4px; border-radius: 999px; overflow-x: auto; scrollbar-width: none;
+    background: var(--surface-2); border: 1px solid var(--ligne);
+  }
+  .selecteur::-webkit-scrollbar { display: none; }
+  .selecteur button {
+    flex: 1 0 auto; padding: 10px 14px; border-radius: 999px; white-space: nowrap;
+    font-size: 13.5px; font-weight: 700; color: var(--texte-doux); transition: background .2s ease, color .2s ease;
+  }
+  .selecteur button[aria-selected="true"] {
+    background: linear-gradient(135deg, var(--orange-clair), var(--orange-vif)); color: var(--sur-accent);
+  }
+  .selection .grille-produits { margin-top: 16px; grid-template-columns: repeat(2, 1fr); }
+  .selection .voir-plus-bas {
+    display: block; margin: 18px auto 0; padding: 11px 22px; border-radius: 999px;
+    font-size: 13.5px; font-weight: 700; color: var(--orange); border: 1px solid var(--ligne); background: var(--surface-2);
+  }
+  .selection .voir-plus-bas:active { transform: scale(.97); }
 
   /* ---------- VUES ---------- */
   main { padding: 24px 16px; max-width: 100%; margin: 0 auto; }
@@ -206,9 +244,9 @@
   main p { color: var(--texte-doux); line-height: 1.5; }
   .vue { display: none; }
   .vue.active { display: block; }
-
+ 
   [hidden] { display: none !important; }
-
+ 
   /* ---------- PAGE COMPTE ---------- */
   /* Utilisateur : il devient le header de la section Compte (fixe, ne défile pas) */
   .header-user { display: none; align-items: center; gap: 12px; min-width: 0; }
@@ -221,12 +259,12 @@
   }
   .compte-nom { font-size: 15px; font-weight: 700; line-height: 1.2; }
   .compte-mail { font-size: 12px; color: var(--texte-doux); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
+ 
   /* Selon l'état de connexion */
   body[data-connecte="0"] .si-connecte { display: none !important; }
   body[data-connecte="1"] .si-invite { display: none !important; }
   body[data-connecte="1"] .actions { margin-top: 0; }
-
+ 
   /* Déconnecté : la partie utilisateur devient une grande palette avec icônes */
   .hero {
     position: relative; overflow: hidden; isolation: isolate;
@@ -254,15 +292,15 @@
   }
   .hero-btn:active { transform: scale(.98); }
   .hero-btn:focus-visible { outline-color: var(--sur-accent); }
-
+ 
   /* Bande rouge (déconnexion) */
   .bande.danger { color: var(--erreur); }
   .bande.danger > svg:first-child { stroke: var(--erreur); }
-
+ 
   .section { margin-top: 28px; }
   .section h2 { font-size: 17px; font-weight: 700; }
   .section .aide { font-size: 13px; color: var(--texte-doux); margin-bottom: 14px; }
-
+ 
   /* Bandes pleine largeur, minimalistes */
   .groupe-titre { font-size: 12.5px; font-weight: 600; color: var(--texte-doux); margin: 22px 0 6px; }
   .bandes { margin: 0 -16px; border-top: 1px solid var(--ligne); border-bottom: 1px solid var(--ligne); }
@@ -278,7 +316,7 @@
   .bande-val { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--texte-doux); }
   .bande .fleche { flex: none; width: 16px; height: 16px; stroke: var(--texte-doux); }
   .point { width: 14px; height: 14px; border-radius: 50%; display: block; }
-
+ 
   /* Boutons Installer / Partager */
   .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
   .action {
@@ -291,7 +329,7 @@
     color: var(--sur-accent); border-color: transparent;
   }
   .action:active { transform: scale(.97); }
-
+ 
   /* Mini onglets (page Commandes) */
   .onglets { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; margin-top: 18px; }
   .onglets::-webkit-scrollbar { display: none; }
@@ -302,6 +340,23 @@
     transition: background .2s ease, color .2s ease, border-color .2s ease;
   }
   .onglet[aria-selected="true"] { background: var(--orange); border-color: var(--orange); color: var(--sur-orange); }
+ 
+  /* Bouton retour : dans l'en-tête sur les sous-pages (celui de la page est masqué) */
+  .vue .retour { display: none; }
+  .header .retour-header { display: none; margin: 0; flex: none; padding: 4px; gap: 0; }
+  body.sous-page .header .retour-header { display: inline-flex; }
+  body.sous-page .logo, body.sous-page .header-user,
+  body[data-section][data-connecte].sous-page .logo, body[data-section][data-connecte].sous-page .header-user { display: none !important; }
+  @media (max-width: 899px) {
+    body.sous-page .nav { transform: translateY(160%); opacity: 0; visibility: hidden; pointer-events: none; }
+  }
+  body.sous-page { padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px)); }
+  /* Connexion / inscription : la section occupe tout l'écran jusqu'en bas */
+  #vue-auth {
+    min-height: calc(100vh - var(--header-h) - env(safe-area-inset-top, 0px) - 80px - env(safe-area-inset-bottom, 0px));
+    min-height: calc(100dvh - var(--header-h) - env(safe-area-inset-top, 0px) - 80px - env(safe-area-inset-bottom, 0px));
+  }
+  #vue-auth .auth-fond { bottom: calc(-56px - env(safe-area-inset-bottom, 0px)); }
 
   /* Pages ouvertes depuis le compte */
   .retour {
@@ -323,7 +378,7 @@
     .retour:hover svg { transform: translateX(-3px); }
   }
   .vue .commandes { margin-top: 18px; }
-
+ 
   /* Cartes de liste (commandes, favoris, paiements, service client) */
   .commandes { display: flex; flex-direction: column; gap: 10px; }
   .commande {
@@ -347,7 +402,7 @@
     width: 100%; padding: 14px; border-radius: 18px; font-size: 14px; font-weight: 600;
     border: 1.5px dashed var(--ligne); color: var(--orange);
   }
-
+ 
   /* Choix (format barre / thème) */
   .choix { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .option {
@@ -359,7 +414,7 @@
   .option[aria-checked="true"] .coche { opacity: 1; }
   .option .ligne { display: flex; align-items: center; gap: 6px; }
   .coche { width: 16px; height: 16px; opacity: 0; stroke: var(--orange); transition: opacity .2s ease; }
-
+ 
   .apercu { width: 100%; height: 64px; border-radius: 10px; background: var(--bg); border: 1px solid var(--ligne); position: relative; overflow: hidden; }
   .apercu i { position: absolute; background: var(--orange); }
   .apercu.flottant i { left: 12%; right: 12%; bottom: 10px; height: 16px; border-radius: 8px; }
@@ -373,15 +428,15 @@
   }
   .apercu.theme-sombre::after { background: #2a2a2a; }
   .apercu.theme-clair::after { background: #e4e4e4; }
-
-
+ 
+ 
   /* ---------- BARRE DE NAVIGATION ---------- */
   .nav {
     position: fixed; z-index: 50; display: flex; align-items: center;
     transition: left .3s ease, right .3s ease, bottom .3s ease, background .25s ease, transform .25s ease, opacity .25s ease;
   }
   .nav-groupe { display: contents; }
-
+ 
   .nav-item {
     flex: 1; height: 100%;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
@@ -395,7 +450,7 @@
     content: ""; position: absolute; bottom: 8px; width: 5px; height: 5px;
     border-radius: 50%; background: var(--orange);
   }
-
+ 
   /* Compteur de favoris dans la barre */
   .nav-item .nb {
     position: absolute; top: 9px; left: calc(50% + 6px); min-width: 16px; height: 16px; padding: 0 4px;
@@ -403,7 +458,7 @@
     background: var(--orange); color: var(--sur-orange);
   }
   .nav-item .nb[hidden] { display: none; }
-
+ 
   /* Format 1 : flottant arrondi (par défaut) : la barre à gauche, le compte flottant à droite */
   .nav[data-format="flottant"] {
     left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
@@ -420,7 +475,7 @@
   .nav[data-format="flottant"] .nav-item.rond .lib { display: none; }
   .nav[data-format="flottant"] .nav-item.rond::after { display: none; }
   .nav[data-format="flottant"] .nav-item.rond.active { border-color: var(--orange); }
-
+ 
   /* Format 2 : normal (collé en bas, pleine largeur, compte intégré comme un onglet) */
   .nav[data-format="normal"] {
     left: 0; right: 0; bottom: 0;
@@ -429,7 +484,7 @@
     background: var(--surface); border-top: 1px solid var(--ligne);
   }
   .nav[data-format="normal"] .nav-item.active::after { bottom: 6px; }
-
+ 
   /* ---------- PAGE ÉVÉNEMENTS ET BONUS ---------- */
   .evenement {
     display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
@@ -446,7 +501,7 @@
   .progression i { display: block; height: 100%; width: 83%; border-radius: 4px; background: var(--sur-accent); }
   .vue .section:first-of-type { margin-top: 22px; }
   .vue .section .commandes { margin-top: 0; }
-
+ 
   /* Palette */
   .palette-apercu { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
   .palette-apercu .action { flex: 1; height: 42px; }
@@ -458,7 +513,7 @@
   }
   .pal .duo { display: block; height: 44px; border-radius: 10px; }
   .pal[aria-checked="true"] { border-color: var(--orange); box-shadow: 0 0 0 1px var(--orange); }
-
+ 
   /* Recherche */
   .champ {
     display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 16px; border-radius: 24px;
@@ -474,7 +529,7 @@
   }
   .vide { color: var(--texte-doux); font-size: 14px; line-height: 1.5; }
   .legende { font-size: 12.5px; font-weight: 600; color: var(--texte-doux); margin-bottom: 10px; }
-
+ 
   /* Message court */
   .toast {
     position: fixed; z-index: 80; left: 50%; max-width: 90%; text-align: center;
@@ -484,7 +539,7 @@
     background: var(--texte); color: var(--bg); transition: opacity .25s ease, transform .25s ease;
   }
   .toast.visible { opacity: 1; transform: translate(-50%, 0); }
-
+ 
   /* ---------- ACCUEIL : cartes d'infos défilantes (la carte suivante dépasse, on la saisit directement) ---------- */
   .carrousel { margin: 0 -16px; }
   .cartes {
@@ -494,8 +549,8 @@
   .cartes::-webkit-scrollbar { display: none; }
   .carte-info {
     position: relative; overflow: hidden; isolation: isolate;
-    flex: 0 0 80%; scroll-snap-align: start;
-    padding: 11px 14px 13px; border-radius: 20px;
+    flex: 0 0 86%; scroll-snap-align: start;
+    padding: 16px 18px 18px; border-radius: 22px;
     display: flex; flex-direction: column; gap: 4px;
     background: var(--surface-2); border: 1px solid var(--ligne);
   }
@@ -519,8 +574,8 @@
   .carte-info.accent .ci-icone svg { stroke: var(--sur-accent); }
   .ci-etiquette { font-size: 12px; font-weight: 600; color: var(--texte-doux); }
   .carte-info.accent .ci-etiquette { color: inherit; opacity: .8; }
-  .carte-info h2 { font-size: 16.5px; font-weight: 800; letter-spacing: -.2px; line-height: 1.2; }
-  .carte-info p { font-size: 12.5px; line-height: 1.35; color: var(--texte-doux); }
+  .carte-info h2 { font-size: 18.5px; font-weight: 800; letter-spacing: -.2px; line-height: 1.2; }
+  .carte-info p { font-size: 13.5px; line-height: 1.4; color: var(--texte-doux); }
   .carte-info.accent p { color: inherit; opacity: .88; }
   .ci-barre { width: 100%; height: 5px; border-radius: 3px; background: var(--ligne); overflow: hidden; margin-top: 3px; }
   .ci-barre i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--orange-clair), var(--orange-vif)); }
@@ -531,7 +586,7 @@
   .carte-info.accent .ci-btn { background: var(--sur-accent); color: var(--sur-accent-inv); }
   .ci-btn:active { transform: scale(.97); }
   @media (min-width: 640px) { .carte-info { flex-basis: 46%; } }
-
+ 
   /* Commutateur : grandes zones de toucher (26 x 30 px) autour de petits points */
   .pastilles { display: flex; justify-content: center; align-items: center; margin-top: 4px; }
   .pt { display: grid; place-items: center; width: 26px; height: 30px; border-radius: 12px; }
@@ -541,7 +596,7 @@
   .car-nav { display: none; place-items: center; width: 32px; height: 32px; margin: 0 8px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--ligne); transition: transform .15s ease, border-color .2s ease; }
   .car-nav svg { width: 16px; height: 16px; stroke: var(--texte); }
   .car-nav:active { transform: scale(.92); }
-
+ 
   /* Carte Catégories : le titre est dans la carte, sous-catégories agrandies */
   .classes {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 2px;
@@ -565,13 +620,13 @@
     .classe-icone svg { width: 23px; height: 23px; }
     .classe-nom { font-size: 11.5px; }
   }
-
+ 
   /* ---------- CATALOGUE : accueil, catégories, détail ---------- */
   .rang-titre { display: flex; align-items: baseline; justify-content: space-between; margin: 26px 0 12px; }
   .rang-titre h2 { font-size: 17px; font-weight: 700; }
   .lien { font-size: 13px; font-weight: 600; color: var(--orange); padding: 4px 0; transition: opacity .2s ease; }
   .lien:active { opacity: .6; }
-
+ 
   .grille-produits { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 12px; }
   .produit { position: relative; min-width: 0; }
   .produit-ouvrir { display: flex; flex-direction: column; gap: 6px; width: 100%; min-width: 0; text-align: left; }
@@ -589,7 +644,7 @@
   .img-fond { opacity: 0; transition: opacity .45s ease; }
   .img-fond.charge { opacity: 1; }
   .vide-cat { grid-column: 1 / -1; color: var(--texte-doux); font-size: 14px; line-height: 1.5; padding: 20px 4px; }
-
+ 
   /* Catégories à gauche, produits à droite */
   .cat-layout { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 14px; align-items: start; }
   .cat-liste {
@@ -610,7 +665,7 @@
   .cat-entete { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
   .cat-entete h1 { font-size: 20px; margin: 0; }
   .cat-compte { font-size: 12.5px; color: var(--texte-doux); }
-
+ 
   /* Détail d'un article : galerie (photo principale + photo de description sur la même ligne) */
   .galerie-piste {
     display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain;
@@ -643,7 +698,7 @@
     transition: transform .15s ease;
   }
   .btn-plein:active { transform: scale(.97); }
-
+ 
   /* Favoris : cœur sur les articles, page vide */
   .coeur {
     position: absolute; top: 8px; right: 8px; z-index: 2; width: 34px; height: 34px; border-radius: 50%;
@@ -667,7 +722,7 @@
   .vide-fav p { max-width: 280px; font-size: 14px; line-height: 1.5; color: var(--texte-doux); }
   .vide-fav .btn-plein { width: auto; padding: 0 28px; margin-top: 8px; }
   @media (hover: hover) { .coeur:hover { transform: scale(1.08); } }
-
+ 
   /* ---------- ANIMATIONS ---------- */
   @keyframes entree { from { opacity: 0; transform: translateY(10px); } }
   @keyframes monte  { from { opacity: 0; transform: translateY(14px) scale(.97); } }
@@ -687,7 +742,7 @@
     .bande:hover { background: rgba(var(--accent-rgb), .06); }
     .vignette:hover { opacity: 1; }
   }
-
+ 
   /* ---------- IDENTIFICATION ---------- */
   .seg { display: flex; gap: 4px; padding: 4px; margin: 18px 0 20px; background: var(--surface-2); border: 1px solid var(--ligne); border-radius: 16px; }
   .seg button { flex: 1; height: 40px; border-radius: 12px; font-size: 14px; font-weight: 600; color: var(--texte-doux); transition: background .2s ease, color .2s ease; }
@@ -711,7 +766,7 @@
   .note-bureau { display: none; }
   .champ-form.secoue { animation: secoue .35s ease; }
   @keyframes secoue { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
-
+ 
   /* Robustesse : force du mot de passe, notice, accord, messages */
   .champ-form small { display: block; margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--texte-doux); }
   .force { height: 6px; margin-top: 10px; border-radius: 3px; background: var(--ligne); overflow: hidden; }
@@ -733,7 +788,7 @@
   .info-form:empty { display: none; }
   .auth-perdu { margin-top: 14px; text-align: center; font-size: 12.5px; color: var(--texte-doux); }
   .btn-plein:disabled { opacity: .6; cursor: progress; }
-
+ 
   /* Page d'identification : étiquettes, carte du formulaire */
   /* Stickers décoratifs en arrière-plan de la page de connexion */
   #vue-auth { position: relative; isolation: isolate; }
@@ -752,7 +807,7 @@
   :root[data-theme="clair"] .sticker { border-color: var(--bg); box-shadow: 0 8px 18px rgba(0, 0, 0, .16), 0 0 0 1px var(--ligne); }
   @keyframes flotte { 50% { transform: translateY(-7px) rotate(var(--r)); } }
   .auth-carte { position: relative; z-index: 1; }
-
+ 
   .auth-entete { position: relative; z-index: 1; margin: 0 4px; }
   .auth-badge {
     display: inline-flex; align-items: center; gap: 7px; margin-bottom: 12px; padding: 6px 10px;
@@ -782,7 +837,7 @@
   .about-credit { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--ligne); }
   .about-credit span { display: block; color: var(--texte-doux); font-size: 12px; }
   .about-credit strong { display: block; margin-top: 4px; font-size: 15px; }
-
+ 
   /* ---------- ADAPTATION : mobile, tablette, ordinateur ---------- */
   @media (min-width: 640px) {
     .grille-produits { grid-template-columns: repeat(3, 1fr); }
@@ -811,7 +866,7 @@
     .classe-icone { width: 72px; height: 72px; border-radius: 24px; }
     .classe-icone svg { width: 32px; height: 32px; }
     .classe-nom { font-size: 14px; }
-
+ 
     /* La navigation passe en haut, au centre de l'en-tête (la barre du bas est réservée au mobile) */
     .nav[data-format] {
       top: env(safe-area-inset-top, 0px); bottom: auto; left: 50%; right: auto; width: auto; max-width: none; margin: 0; padding: 0;
@@ -828,13 +883,13 @@
     .nav[data-format] .nav-item.rond .lib { display: inline; }
     .nav[data-format] .nav-item.rond.active { background: rgba(var(--accent-rgb), .14); }
     @media (hover: hover) { .nav .nav-item:hover { background: rgba(var(--accent-rgb), .08); color: var(--texte); } }
-
+ 
     /* Catégories : liste à gauche plus large, produits à droite */
     .cat-layout { grid-template-columns: 220px minmax(0, 1fr); gap: 32px; }
     .cat-liste { top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + 24px); max-height: calc(100vh - var(--header-h) - 64px); }
     .cat-btn { flex-direction: row; justify-content: flex-start; gap: 12px; padding: 12px 14px; font-size: 14px; }
     .cat-entete h1 { font-size: 24px; }
-
+ 
     /* Détail d'un article : galerie à gauche, informations à droite */
     #vue-produit { max-width: 980px; margin: 0 auto; }
     #detailProduit { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 40px; align-items: start; }
@@ -845,7 +900,7 @@
   @media (min-width: 1100px) {
     .grille-produits { grid-template-columns: repeat(4, 1fr); }
   }
-
+ 
   /* ---------- MOBILE : cartes moins hautes ---------- */
   @media (max-width: 639px) {
     .commande { gap: 12px; padding: 10px 12px; border-radius: 16px; }
@@ -866,7 +921,7 @@
     .btn-plein { height: 46px; }
     .action { height: 42px; }
   }
-
+ 
   /* ---------- FORMULAIRES SELON LA PLATEFORME ---------- */
   /* Mobile : le clavier prend la place, on masque la barre du bas pendant la saisie */
   body.saisie .auth-fond { opacity: .35; }
@@ -879,32 +934,19 @@
     #vue-auth[data-mode="inscription"] .auth-champs { display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; }
     #vue-auth[data-mode="inscription"] #wrapTel { grid-column: 1 / -1; }
   }
-
+ 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 </style>
 </head>
 <body data-connecte="0" data-section="accueil">
-
+ 
 <!-- HEADER -->
 <header class="header">
-  <a class="logo" href="#" aria-label="E-Shop, accueil">
-    <svg viewBox="0 0 120 80" aria-hidden="true">
-      <defs>
-        <linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0" style="stop-color:var(--orange-vif)"/>
-          <stop offset="1" style="stop-color:var(--orange-clair)"/>
-        </linearGradient>
-      </defs>
-      <path d="M4 28h22l-3 9H7a4 4 0 0 1-3-9z" fill="url(#g)"/>
-      <path d="M0 44h26l-3 9H5a4 4 0 0 1-5-9z" fill="url(#g)"/>
-      <path d="M8 58h18l-3 9H12a4 4 0 0 1-4-9z" fill="url(#g)"/>
-      <path d="M52 2h66l-9 17H62l-4 9h46l-8 16H54l-4 9h50l-8 17H22z" fill="url(#g)" transform="translate(6 0) scale(.92 1)"/>
-    </svg>
-    <span class="logo-texte">-Shop</span>
-  </a>
-
+  <button class="retour retour-header" id="retourHeader" type="button" aria-label="Retour"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+  <a class="logo" href="#" aria-label="E-Shop, accueil"><img src="./logo.png" alt="E-Shop"></a>
+ 
   <div class="header-user" aria-label="Utilisateur connecté">
     <div class="avatar">E</div>
     <div style="min-width:0">
@@ -912,7 +954,7 @@
       <div class="compte-mail">client@e-shop.com</div>
     </div>
   </div>
-
+ 
   <div class="barre-recherche" id="barreRecherche" role="search">
     <input id="champRecherche" type="search" placeholder="Rechercher un article" autocomplete="off" enterkeyhint="search" aria-label="Rechercher un article" maxlength="80">
     <button class="btn-lancer" id="btnLancer" type="button" aria-label="Lancer la recherche"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
@@ -922,7 +964,7 @@
     <svg class="ic-x" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
   </button>
 </header>
-
+ 
 <main>
   <!-- Vues d'exemple -->
   <section class="vue active" id="vue-accueil" aria-label="Informations">
@@ -933,16 +975,16 @@
           <span class="ci-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
           <span class="ci-etiquette">Événements</span><button class="ci-btn" type="button" data-aller="evenements">Découvrir</button>
         </div>
-        <h2>Ventes flash samedi dès 12 h</h2>
-        <p>Soldes d'automne : jusqu'à -50 % sur une sélection.</p>
+        <h2>Ventes flash samedi dès 12 h</h2>
+        <p>Soldes d'automne : jusqu'à -50 % sur une sélection.</p>
       </article>
       <article class="carte-info " role="group" aria-roledescription="carte" aria-label="2 sur 5">
         <div class="ci-tete">
           <span class="ci-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
           <span class="ci-etiquette">Livraison</span>
         </div>
-        <h2>Livraison offerte dès 30 000 FCFA</h2>
-        <p>Expédition sous 24 h, retrait en point relais et suivi en temps réel.</p>
+        <h2>Livraison offerte dès 30 000 FCFA</h2>
+        <p>Expédition sous 24 h, retrait en point relais et suivi en temps réel.</p>
       </article>
       <article class="carte-info " role="group" aria-roledescription="carte" aria-label="3 sur 5">
         <div class="ci-tete">
@@ -957,8 +999,8 @@
           <span class="ci-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg></span>
           <span class="ci-etiquette">Bonus</span><button class="ci-btn" type="button" data-aller="evenements">Mes bonus</button>
         </div>
-        <h2>1 250 points fidélité</h2>
-        <p>Plus que 250 points avant ta prochaine récompense.</p>
+        <h2>1 250 points fidélité</h2>
+        <p>Plus que 250 points avant ta prochaine récompense.</p>
         <div class="ci-barre" role="progressbar" aria-valuenow="83" aria-valuemin="0" aria-valuemax="100" aria-label="Progression vers la prochaine récompense"><i style="width:83%"></i></div>
       </article>
       <article class="carte-info " role="group" aria-roledescription="carte" aria-label="5 sur 5">
@@ -967,12 +1009,17 @@
           <span class="ci-etiquette">Confiance</span>
         </div>
         <h2>Achète en toute confiance</h2>
-        <p>Paiement 100 % sécurisé, retours gratuits sous 30 jours.</p>
+        <p>Paiement 100 % sécurisé, retours gratuits sous 30 jours.</p>
       </article>
       </div>
       <div class="pastilles" id="pointsInfo"><button class="car-nav prev" type="button" aria-label="Carte précédente"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button><button class="pt" type="button" aria-label="Carte 1"></button><button class="pt" type="button" aria-label="Carte 2"></button><button class="pt" type="button" aria-label="Carte 3"></button><button class="pt" type="button" aria-label="Carte 4"></button><button class="pt" type="button" aria-label="Carte 5"></button><button class="car-nav next" type="button" aria-label="Carte suivante"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button></div>
     </div>
     <div class="rayons" id="rayons"></div>
+    <div class="selection" id="selectionAccueil">
+      <div class="selecteur" id="selecteurAccueil" role="tablist" aria-label="Articles à découvrir"></div>
+      <div class="grille-produits" id="grilleSelection" role="tabpanel" aria-live="polite"></div>
+      <button type="button" class="voir-plus-bas" id="voirPlusSelection">Voir plus d'articles</button>
+    </div>
   </section>
   <section class="vue" id="vue-categories">
     <div class="cat-layout">
@@ -987,7 +1034,7 @@
     </div>
   </section>
   <section class="vue" id="vue-panier"><h1>Panier</h1><p>Ton panier est vide pour l'instant.</p></section>
-
+ 
   <!-- PAGE COMPTE (page complète) -->
   <section class="vue" id="vue-compte">
     <!-- Déconnecté : grande palette avec icônes + bouton -->
@@ -1003,13 +1050,13 @@
       <p>Connecte-toi pour suivre tes commandes, garder tes favoris et profiter de tes bonus.</p>
       <button class="hero-btn" id="btnConnexion" type="button">S'inscrire ou se connecter</button>
     </div>
-
+ 
     <!-- Installer / Partager -->
     <div class="actions">
       <button class="action principal" id="btnInstaller" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>Installer</button>
       <button class="action" id="btnPartager" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg>Partager</button>
     </div>
-
+ 
     <div class="si-connecte">
       <div class="groupe-titre">Gestion de compte</div>
       <div class="bandes">
@@ -1018,19 +1065,19 @@
       <button class="bande" type="button" data-aller="recents"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="bande-nom">Consultés récemment</span><svg class="fleche" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
       </div>
     </div>
-
+ 
     <div class="groupe-titre">Personnalisation</div>
     <div class="bandes">
       <button class="bande" type="button" data-aller="theme"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span class="bande-nom">Thème</span><span class="bande-val" id="valTheme"></span><svg class="fleche" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
       <button class="bande" type="button" data-aller="palette"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 2-2 0-1.3-1-1.7-1-3 0-1.2 1-2 2.3-2H17a4 4 0 0 0 4-4c0-3.9-4-7-9-7z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></svg><span class="bande-nom">Palette</span><span class="bande-val"><i class="point" id="dotPalette"></i><span id="valPalette"></span></span><svg class="fleche" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
       <button class="bande" type="button" data-aller="barre"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><rect x="6.5" y="14.5" width="11" height="3" rx="1.5"/></svg><span class="bande-nom">Barre de navigation</span><span class="bande-val" id="valBarre"></span><svg class="fleche" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
     </div>
-
+ 
     <div class="groupe-titre">Besoin d'aide ?</div>
     <div class="bandes">
       <button class="bande" type="button" data-aller="service"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/><path d="M19 20a4 4 0 0 1-4 2h-2"/></svg><span class="bande-nom">Assistance</span><svg class="fleche" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
     </div>
-
+ 
     <div class="bandes si-connecte" style="margin-top:26px">
       <button class="bande danger" id="btnDeconnexion" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg><span class="bande-nom">Se déconnecter</span></button>
     </div>
@@ -1039,7 +1086,7 @@
       <button class="bande" type="button" data-aller="about"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span class="bande-nom">À propos de E-Shop</span><svg class="fleche" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
     </div>
   </section>
-
+ 
   <!-- Commandes -->
   <section class="vue" id="vue-commandes">
     <button class="retour" type="button" data-retour><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Compte</button>
@@ -1056,7 +1103,7 @@
         <span class="commande-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
         <span class="commande-info">
           <div class="commande-num">Commande n° 1032</div>
-          <div class="commande-detail">1 article · 16 000 FCFA</div>
+          <div class="commande-detail">1 article · 16 000 FCFA</div>
         </span>
           <span class="statut livree">Livrée</span>
       </button>
@@ -1064,7 +1111,7 @@
         <span class="commande-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
         <span class="commande-info">
           <div class="commande-num">Commande n° 1007</div>
-          <div class="commande-detail">3 articles · 93 000 FCFA</div>
+          <div class="commande-detail">3 articles · 93 000 FCFA</div>
         </span>
           <span class="statut livree">Livrée</span>
       </button>
@@ -1076,7 +1123,7 @@
         <span class="commande-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
         <span class="commande-info">
           <div class="commande-num">Commande n° 1048</div>
-          <div class="commande-detail">2 articles · 59 000 FCFA</div>
+          <div class="commande-detail">2 articles · 59 000 FCFA</div>
         </span>
           <span class="statut en-cours">En livraison</span>
       </button>
@@ -1084,7 +1131,7 @@
         <span class="commande-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
         <span class="commande-info">
           <div class="commande-num">Commande n° 1051</div>
-          <div class="commande-detail">1 article · 23 000 FCFA</div>
+          <div class="commande-detail">1 article · 23 000 FCFA</div>
         </span>
           <span class="statut en-cours">En préparation</span>
       </button>
@@ -1096,7 +1143,7 @@
         <span class="commande-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg></span>
         <span class="commande-info">
           <div class="commande-num">Commande n° 1019</div>
-          <div class="commande-detail">2 articles · 42 000 FCFA</div>
+          <div class="commande-detail">2 articles · 42 000 FCFA</div>
         </span>
           <span class="statut echec">Paiement échoué</span>
       </button>
@@ -1104,7 +1151,7 @@
         <span class="commande-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg></span>
         <span class="commande-info">
           <div class="commande-num">Commande n° 1003</div>
-          <div class="commande-detail">1 article · 12 500 FCFA</div>
+          <div class="commande-detail">1 article · 12 500 FCFA</div>
         </span>
           <span class="statut echec">Non payée</span>
       </button>
@@ -1112,7 +1159,7 @@
     </div>
     </div>
   </section>
-
+ 
   <!-- Thème -->
   <section class="vue" id="vue-theme">
     <button class="retour" type="button" data-retour><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Compte</button>
@@ -1133,7 +1180,7 @@
         </button>
       </div>
   </section>
-
+ 
   <!-- Barre de navigation -->
   <section class="vue" id="vue-barre">
     <button class="retour" type="button" data-retour><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Compte</button>
@@ -1155,9 +1202,9 @@
         </button>
       </div>
   </section>
-
-
-
+ 
+ 
+ 
   <!-- Consultés récemment -->
   <section class="vue" id="vue-recents">
     <button class="retour" type="button" data-retour><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Compte</button>
@@ -1169,7 +1216,7 @@
           <div class="commande-num">Montre connectée Orbit</div>
           <div class="commande-detail">Montres</div>
         </span>
-        <span class="statut livree">85 000 FCFA</span>
+        <span class="statut livree">85 000 FCFA</span>
       </button>
       <button class="commande" type="button">
         <span class="commande-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1"/></svg></span>
@@ -1177,7 +1224,7 @@
           <div class="commande-num">Baskets Run X</div>
           <div class="commande-detail">Chaussures</div>
         </span>
-        <span class="statut livree">55 500 FCFA</span>
+        <span class="statut livree">55 500 FCFA</span>
       </button>
       <button class="commande" type="button">
         <span class="commande-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1"/></svg></span>
@@ -1185,7 +1232,7 @@
           <div class="commande-num">Casque sans fil Pulse</div>
           <div class="commande-detail">Audio</div>
         </span>
-        <span class="statut livree">39 500 FCFA</span>
+        <span class="statut livree">39 500 FCFA</span>
       </button>
       <button class="commande" type="button">
         <span class="commande-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1"/></svg></span>
@@ -1193,19 +1240,19 @@
           <div class="commande-num">Clavier mécanique Click</div>
           <div class="commande-detail">Informatique</div>
         </span>
-        <span class="statut livree">46 000 FCFA</span>
+        <span class="statut livree">46 000 FCFA</span>
       </button>
     </div>
   </section>
-
-
+ 
+ 
   <!-- Détail d'un article -->
   <section class="vue" id="vue-produit">
     <button class="retour" id="btnRetourProduit" type="button"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg><span id="retourLibelle">Retour</span></button>
     <div id="detailProduit"></div>
   </section>
-
-
+ 
+ 
   <!-- Identification : connexion / inscription -->
   <section class="vue" id="vue-auth">
     <div class="auth-fond" aria-hidden="true">
@@ -1224,13 +1271,13 @@
       <h1 id="authTitre">Connexion</h1>
       <p class="doux" id="authSous">Content de te revoir sur E-Shop.</p>
     </div>
-
+ 
     <div class="auth-carte">
     <div class="seg" role="tablist" aria-label="Identification">
       <button type="button" role="tab" data-mode="connexion" aria-selected="true">Se connecter</button>
       <button type="button" role="tab" data-mode="inscription" aria-selected="false">S’inscrire</button>
     </div>
-
+ 
     <div class="auth-champs">
     <div class="champ-form" id="wrapNom" hidden>
       <label for="authNom" class="lbl"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Nom complet</label>
@@ -1264,7 +1311,7 @@
       </span>
       <small id="matchTxt" aria-live="polite"></small>
     </div>
-
+ 
     </div>
     <div class="notice" id="authNotice" role="note" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17v.01"/></svg>
@@ -1274,14 +1321,14 @@
       <input type="checkbox" id="authNote">
       <span>J’ai noté ou capturé mon mot de passe.</span>
     </label>
-
+ 
     <p class="erreur-form" id="authErreur" role="alert"></p>
     <p class="info-form" id="authInfo" role="status"></p>
     <button class="btn-plein" id="authValider" type="button" style="margin-top:4px">Se connecter</button>
     <p class="auth-perdu" id="authPerdu">Mot de passe perdu ? Il ne peut pas être récupéré.</p>
     </div>
   </section>
-
+ 
   <!-- À propos -->
   <section class="vue" id="vue-about">
     <button class="retour" type="button" data-retour="compte"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Compte</button>
@@ -1297,7 +1344,7 @@
       </div>
     </div>
   </section>
-
+ 
   <!-- Palette -->
   <section class="vue" id="vue-palette">
     <button class="retour" type="button" data-retour><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Compte</button>
@@ -1309,12 +1356,12 @@
     </div>
     <div class="palettes" id="grillePalettes" role="radiogroup" aria-label="Palette"></div>
   </section>
-
+ 
   <!-- Recherche -->
   <section class="vue" id="vue-recherche">
     <div id="resultats" aria-live="polite"></div>
   </section>
-
+ 
   <!-- Favoris -->
   <section class="vue" id="vue-favoris">
     <div class="cat-entete">
@@ -1329,7 +1376,7 @@
       <button class="btn-plein" type="button" data-aller="categories">Découvrir les articles</button>
     </div>
   </section>
-
+ 
   <!-- Paiement -->
   <section class="vue" id="vue-paiements">
     <button class="retour" type="button" data-retour><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Compte</button>
@@ -1352,7 +1399,7 @@
       <button class="ajout" type="button">Ajouter un moyen de paiement</button>
     </div>
   </section>
-
+ 
   <!-- Assistance -->
   <section class="vue" id="vue-service">
     <button class="retour" type="button" data-retour><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Compte</button>
@@ -1381,13 +1428,13 @@
       </button>
     </div>
   </section>
-
+ 
   <!-- Événements et bonus (section spéciale) -->
   <section class="vue" id="vue-evenements">
     <button class="retour" type="button" data-retour="accueil"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>Accueil</button>
     <h1>Événements et bonus</h1>
     <p>Les temps forts de E-Shop et tes avantages.</p>
-
+ 
     <div class="section">
       <h2 style="margin-bottom:12px">Événements</h2>
       <div class="commandes">
@@ -1409,7 +1456,7 @@
         </button>
       </div>
     </div>
-
+ 
     <div class="section">
       <h2 style="margin-bottom:12px">Bonus</h2>
       <div class="points">
@@ -1430,7 +1477,7 @@
           <span class="commande-icone"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/></svg></span>
           <span class="commande-info">
             <div class="commande-num">Parrainage</div>
-            <div class="commande-detail">Invite un ami, gagne 3 000 FCFA</div>
+            <div class="commande-detail">Invite un ami, gagne 3 000 FCFA</div>
           </span>
           <span class="statut en-cours">Inviter</span>
         </button>
@@ -1438,11 +1485,11 @@
     </div>
   </section>
 </main>
-
+ 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
+ 
 <!-- BARRE DE NAVIGATION -->
-<nav class="nav" id="nav" data-format="flottant" aria-label="Navigation principale">
+<nav class="nav" id="nav" data-format="normal" aria-label="Navigation principale">
   <div class="nav-groupe">
   <button class="nav-item active" data-vue="accueil">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
@@ -1467,17 +1514,17 @@
     <span class="lib">Compte</span>
   </button>
 </nav>
-
+ 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/dist/umd/supabase.min.js"></script>
 <script>
   const nav = document.getElementById('nav');
   const racine = document.documentElement;
   const optionsFormat = document.querySelectorAll('#choixFormat .option');
   const optionsTheme = document.querySelectorAll('#choixTheme .option');
-  const CLE_FORMAT = 'eshop_nav_format';
+  const CLE_FORMAT = 'eshop_nav_format_v2';
   const CLE_THEME = 'eshop_theme';
   const majValeur = (id, texte) => { const e = document.getElementById(id); if (e) e.textContent = texte; };
-
+ 
   /* ----- Palette bi-ton (mémorisée) ----- */
   const CLE_PALETTE = 'eshop_palette';
   const PALETTES = [
@@ -1519,7 +1566,7 @@
     const v = parseInt(localStorage.getItem(CLE_PALETTE), 10);
     if (v >= 0 && v < PALETTES.length) paletteIdx = v;
   } catch (e) {}
-
+ 
   const hexRgb = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
   const luminance = ([r, g, b]) => {
     const f = c => { c /= 255; return c <= .03928 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4); };
@@ -1527,7 +1574,7 @@
   };
   // Texte noir ou blanc selon le meilleur contraste
   const texteSur = L => ((L + .05) / .05 >= 1.05 / (L + .05) ? '#000' : '#fff');
-
+ 
   function appliquerPalette(i, enregistrer) {
     paletteIdx = i;
     const [nom, c1, c2] = PALETTES[i];
@@ -1551,7 +1598,7 @@
     if (dot) dot.style.background = 'linear-gradient(135deg, ' + c1 + ' 50%, ' + c2 + ' 50%)';
     if (enregistrer) { try { localStorage.setItem(CLE_PALETTE, String(i)); } catch (e) {} }
   }
-
+ 
   const grille = document.getElementById('grillePalettes');
   PALETTES.forEach(([nom, c1, c2], i) => {
     const b = document.createElement('button');
@@ -1560,25 +1607,27 @@
     b.addEventListener('click', () => appliquerPalette(i, true));
     grille.appendChild(b);
   });
-
+ 
   /* ----- Format de la barre (mémorisé) ----- */
-  function appliquerFormat(format) {
+  function appliquerFormat(format, sauver) {
     nav.dataset.format = format;
     majValeur('valBarre', format === 'normal' ? 'Normal' : 'Flottant arrondi');
     optionsFormat.forEach(o => o.setAttribute('aria-checked', o.dataset.format === format));
-    try { localStorage.setItem(CLE_FORMAT, format); } catch (e) {}
+    if (sauver) { try { localStorage.setItem(CLE_FORMAT, format); } catch (e) {} }
   }
-  let formatInitial = 'flottant'; // par défaut
+  let formatInitial = 'normal'; // par défaut
   try {
     const f = localStorage.getItem(CLE_FORMAT);
     if (f === 'flottant' || f === 'normal') formatInitial = f;
   } catch (e) {}
   appliquerFormat(formatInitial);
-  optionsFormat.forEach(o => o.addEventListener('click', () => appliquerFormat(o.dataset.format)));
-
+  optionsFormat.forEach(o => o.addEventListener('click', () => appliquerFormat(o.dataset.format, true)));
+ 
   /* ----- Thème clair / sombre (mémorisé) ----- */
   function appliquerTheme(theme) {
     racine.dataset.theme = theme;
+    const mt = document.querySelector('meta[name="theme-color"]');
+    if (mt) mt.setAttribute('content', theme === 'clair' ? '#ffffff' : '#000000');
     majValeur('valTheme', theme === 'clair' ? 'Clair' : 'Sombre');
     appliquerPalette(paletteIdx, false);
     optionsTheme.forEach(o => o.setAttribute('aria-checked', o.dataset.themeChoix === theme));
@@ -1586,7 +1635,7 @@
   }
   appliquerTheme(racine.dataset.theme === 'clair' ? 'clair' : 'sombre');
   optionsTheme.forEach(o => o.addEventListener('click', () => appliquerTheme(o.dataset.themeChoix)));
-
+ 
   /* ----- Navigation entre les vues ----- */
   const items = document.querySelectorAll('.nav-item[data-vue]');
   // Les sous-pages gardent actif l'onglet de leur page d'origine
@@ -1594,7 +1643,7 @@
     commandes: 'compte', paiements: 'compte', service: 'compte',
     theme: 'compte', palette: 'compte', barre: 'compte', recents: 'compte', auth: 'compte', about: 'compte', evenements: 'accueil'
   };
-
+ 
   function afficherVue(nom) {
     if (nom !== 'recherche' && nom !== 'produit' && rechercheOuverte()) fermerRecherche(false);
     document.querySelectorAll('.vue').forEach(v => v.classList.toggle('active', v.id === 'vue-' + nom));
@@ -1602,13 +1651,24 @@
     items.forEach(i => i.classList.toggle('active', i.dataset.vue === onglet));
     document.body.dataset.section = onglet;   // le header affiche l'utilisateur dans la section Compte
     window.scrollTo({ top: 0 });
+    majRetourHeader();
     if (nom === 'recherche') champ.focus({ preventScroll: true });
     if (nom === 'favoris') rendreFavoris();
   }
+  // Bouton retour dans l'en-tête : reprend celui de la page affichée
+  function majRetourHeader() {
+    const btn = document.querySelector('.vue.active .retour');
+    document.body.classList.toggle('sous-page', !!btn);
+    if (btn) document.getElementById('retourHeader').setAttribute('aria-label', 'Retour : ' + btn.textContent.trim());
+  }
+  document.getElementById('retourHeader').addEventListener('click', () => {
+    const btn = document.querySelector('.vue.active .retour');
+    if (btn) btn.click();
+  });
   items.forEach(i => i.addEventListener('click', () => afficherVue(i.dataset.vue)));
   document.querySelectorAll('[data-aller]').forEach(b => b.addEventListener('click', () => afficherVue(b.dataset.aller)));
   document.querySelectorAll('[data-retour]').forEach(b => b.addEventListener('click', () => afficherVue(b.dataset.retour || 'compte')));
-
+ 
   /* ----- Mini onglets (page Commandes) ----- */
   const onglets = document.querySelectorAll('.onglet');
   const panneaux = document.querySelectorAll('.panneau');
@@ -1616,18 +1676,18 @@
     onglets.forEach(x => x.setAttribute('aria-selected', x === o));
     panneaux.forEach(pn => { pn.hidden = pn.id !== 'p-' + o.dataset.panneau; });
   }));
-
+ 
   /* ----- Cartes d'infos (Accueil) : défilement libre, la carte suivante dépasse ; changement automatique ----- */
   const piste = document.getElementById('cartesInfo');
   const cartesInfo = [...piste.children];
   const pts = [...document.querySelectorAll('#pointsInfo .pt')];
   const mouvementReduit = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   let carteCourante = 0, enPause = false, minuteur, verrouDefilement = 0;
-
+ 
   const margeGauche = () => parseFloat(getComputedStyle(piste).paddingLeft) || 0;
   const positionCarte = i => cartesInfo[i].offsetLeft - margeGauche();
   const finDeCourse = () => piste.scrollLeft >= piste.scrollWidth - piste.clientWidth - 4;
-
+ 
   function indexProche() {
     if (finDeCourse()) return cartesInfo.length - 1;
     let meilleur = 0, ecart = Infinity;
@@ -1635,7 +1695,7 @@
     return meilleur;
   }
   function majPoints() { pts.forEach((d, k) => d.setAttribute('aria-current', k === carteCourante ? 'true' : 'false')); }
-
+ 
   function allerCarte(i, instantane) {
     const n = cartesInfo.length, direct = instantane || mouvementReduit;
     carteCourante = ((i % n) + n) % n;
@@ -1644,7 +1704,7 @@
     majPoints();
   }
   function carteSuivante() { const fin = finDeCourse(); allerCarte(fin ? 0 : carteCourante + 1, fin); }
-
+ 
   function demarrerCartes() {
     clearInterval(minuteur);
     if (mouvementReduit) return;
@@ -1653,14 +1713,14 @@
       carteSuivante();
     }, 5000);
   }
-
+ 
   // Le doigt (ou la souris) peut saisir n'importe quelle carte : les points suivent la position réelle
   piste.addEventListener('scroll', () => {
     if (Date.now() < verrouDefilement) return;
     const i = indexProche();
     if (i !== carteCourante) { carteCourante = i; majPoints(); }
   }, { passive: true });
-
+ 
   pts.forEach((d, k) => d.addEventListener('click', () => { allerCarte(k); demarrerCartes(); }));
   document.querySelector('#pointsInfo .prev').addEventListener('click', () => { allerCarte(carteCourante - 1); demarrerCartes(); });
   document.querySelector('#pointsInfo .next').addEventListener('click', () => { allerCarte(carteCourante + 1); demarrerCartes(); });
@@ -1668,7 +1728,7 @@
   ['pointerleave', 'pointerup', 'pointercancel', 'focusout'].forEach(ev => piste.addEventListener(ev, () => { enPause = false; demarrerCartes(); }));
   majPoints();
   demarrerCartes();
-
+ 
   /* ----- Clavier : la barre du bas se masque pendant la saisie (mobile) ----- */
   const CHAMPS_SAISIE = 'input:not([type="checkbox"]), textarea';
   document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches(CHAMPS_SAISIE)) document.body.classList.add('saisie'); });
@@ -1676,12 +1736,12 @@
     const a = document.activeElement;
     if (!a || !a.matches || !a.matches(CHAMPS_SAISIE)) document.body.classList.remove('saisie');
   }, 80));
-
+ 
   /* ----- Recherche : la barre se déploie dans le header ----- */
   const champ = document.getElementById('champRecherche');
   const resultats = document.getElementById('resultats');
   const norm = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
+ 
   function rendreRecherche() {
     const brut = champ.value.trim(), q = norm(brut);
     resultats.innerHTML = '';
@@ -1712,7 +1772,7 @@
     trouves.forEach(([cat, a], i) => grille.appendChild(carteProduit(cat, a, i)));
   }
   champ.addEventListener('input', rendreRecherche);
-
+ 
   /* ----- Message court ----- */
   const elToast = document.getElementById('toast');
   let minuteurToast;
@@ -1722,7 +1782,7 @@
     clearTimeout(minuteurToast);
     minuteurToast = setTimeout(() => elToast.classList.remove('visible'), 3200);
   }
-
+ 
   /* ----- Installer ----- */
   let invitInstall = null;
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); invitInstall = e; });
@@ -1739,7 +1799,7 @@
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
     toast(ios ? 'Touche Partager, puis « Sur l\'écran d\'accueil ».' : 'Ouvre le menu du navigateur, puis « Installer l\'application ».');
   });
-
+ 
   /* ----- Partager ----- */
   document.getElementById('btnPartager').addEventListener('click', async () => {
     const data = { title: 'E-Shop', text: 'Découvre E-Shop', url: location.href };
@@ -1753,10 +1813,10 @@
       toast('Copie le lien depuis la barre d\'adresse.');
     }
   });
-
+ 
   /* ----- Catalogue : photos des articles (dossiers du site de démo) ----- */
   const BASE_IMAGES = 'https://adamankouamekanjoel-dot.github.io/Demo-articles/';
-
+ 
   // Les 8 catégories (la page Catégories les affiche toutes, l'accueil en montre 4)
   const CATEGORIES = [
     ['bijoux', 'Bijoux', '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M10 3 8 9l4 12 4-12-2-6"/></svg>'],
@@ -1768,7 +1828,7 @@
     ['beaute', 'Beauté', '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg>'],
     ['sport', 'Sport', '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7v10M3 9v6M18 7v10M21 9v6M6 12h12"/></svg>']
   ];
-
+ 
   // Catégories qui ont des photos : dossier, préfixe des fichiers et numéros d'articles.
   //   photo principale : <prefixe>(N).png      photo de description : <prefixe>(N-1).png
   // `fichiers` sert pour un nom de fichier irrégulier (ici l'article 4). Les numéros qui suivent le dernier
@@ -1781,22 +1841,22 @@
       fichiers: { 4: { principale: 'bijou(4) (1).png' } }
     }
   };
-  // Facultatif : nom, prix et description par article, ex. INFOS.bijoux[1] = { nom: 'Bague Aurore', prix: '25 000 FCFA', desc: '…' }
+  // Facultatif : nom, prix et description par article, ex. INFOS.bijoux[1] = { nom: 'Bague Aurore', prix: '25 000 FCFA', desc: '…' }
   // (lus aussi depuis Bijoux/Descriptions/index.json quand le format est reconnu)
   const INFOS = { bijoux: {} };
-
+ 
   const NB = '\u00a0';
   // Montant en francs CFA : 12500 -> « 12 500 FCFA »
   const fcfa = m => String(Math.round(m)).replace(/\B(?=(\d{3})+(?!\d))/g, NB) + NB + 'FCFA';
   const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const ICONE_GEMME = '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M10 3 8 9l4 12 4-12-2-6"/></svg>';
-
+ 
   function nomFichier(cat, n, description) {
     const s = SOURCES[cat], f = (s.fichiers && s.fichiers[n]) || {};
     return description ? (f.description || s.prefixe + '(' + n + '-1).png') : (f.principale || s.prefixe + '(' + n + ').png');
   }
   const urlPhoto = (cat, n, description) => BASE_IMAGES + encodeURI(SOURCES[cat].dossier + '/' + nomFichier(cat, n, description));
-
+ 
   // Ordre aléatoire (Fisher-Yates) : les photos ne suivent aucun ordre
   function melanger(liste) {
     const a = liste.slice();
@@ -1806,7 +1866,7 @@
     }
     return a;
   }
-
+ 
   function infosArticle(cat, n) {
     const i = (INFOS[cat] && INFOS[cat][n]) || {};
     return {
@@ -1815,7 +1875,7 @@
       desc: i.desc || SOURCES[cat].singulier + ' de la collection E-Shop : touche pour voir tous les détails.'   // à remplacer par la vraie description
     };
   }
-
+ 
   // Image qui apparaît en fondu une fois chargée
   function creerImage(src, alt, paresseuse) {
     const im = new Image();
@@ -1826,7 +1886,7 @@
     if (im.complete && im.naturalWidth) im.classList.add('charge');
     return im;
   }
-
+ 
   // Détection légère (requête HEAD, sans télécharger l'image) des articles ajoutés après le dernier numéro connu
   async function existe(url) {
     const ctrl = new AbortController();
@@ -1844,7 +1904,7 @@
     }
     return extra;
   }
-
+ 
   // Lecture facultative de Bijoux/Descriptions/index.json (formats courants : liste ou objet par numéro)
   async function chargerInfos(cat) {
     try {
@@ -1869,13 +1929,13 @@
       return trouve;
     } catch (e) { return false; }
   }
-
+ 
   const catalogue = {};           // catégorie -> liste d'articles
   const ordre = {};               // catégorie -> ordre aléatoire courant (page Catégories)
   const ordreRayons = {};         // rayon -> ordre aléatoire courant (Accueil)
   let catCourante = 'bijoux';
   let origineProduit = 'accueil';
-
+ 
   /* ----- Favoris (mémorisés dans le navigateur) ----- */
   const CLE_FAVORIS = 'eshop_favoris';
   const ICONE_COEUR = '<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 0 0-7.4 7.4L12 21.8l8.8-8.8a5.2 5.2 0 0 0 0-7.4z"/></svg>';
@@ -1883,7 +1943,7 @@
   try { const v = JSON.parse(localStorage.getItem(CLE_FAVORIS)); if (Array.isArray(v)) favoris = v.filter(x => typeof x === 'string'); } catch (e) {}
   const cleFavori = (cat, n) => cat + ':' + n;
   const estFavori = (cat, n) => favoris.includes(cleFavori(cat, n));
-
+ 
   function majCompteurFavoris() {
     const nb = document.getElementById('nbFav');
     nb.textContent = favoris.length > 99 ? '99+' : favoris.length;
@@ -1920,7 +1980,7 @@
     zone.hidden = articles.length === 0;
     document.getElementById('videFav').hidden = articles.length > 0;
   }
-
+ 
   function carteProduit(cat, art, i, longue) {
     const info = infosArticle(cat, art.n);
     const carte = document.createElement('article');
@@ -1942,18 +2002,21 @@
     carte.append(ouvrir, boutonCoeur(cat, art.n));
     return carte;
   }
-
+ 
   // Rayons de l'accueil : le nom est dans la carte, « Voir plus » à droite, cartes longues défilantes
   const RAYONS = [
-    { id: 'duree', titre: 'Durée limitée', style: 'accent', chrono: true },
-    { id: 'nouveautes', titre: 'Nouveautés', style: 'neutre' },
-    { id: 'ventes', titre: 'Meilleures ventes', style: 'teinte' },
-    { id: 'selection', titre: 'Sélection du moment', style: 'neutre' }
+    { id: 'duree', titre: 'Durée limitée', style: 'accent', chrono: true }
   ];
+  const ONGLETS = [
+    { id: 'nouveautes', titre: 'Nouveautés' },
+    { id: 'ventes', titre: 'Meilleures ventes' },
+    { id: 'selection', titre: 'Sélection du moment' }
+  ];
+  let ongletCourant = 'nouveautes';
   const ICO_HORLOGE = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
   const ICO_DROITE = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>';
   const ICO_GAUCHE = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>';
-
+ 
   function tousLesArticles() {
     const liste = [];
     Object.keys(catalogue).forEach(cat => catalogue[cat].forEach(a => liste.push([cat, a])));
@@ -1969,7 +2032,7 @@
     const deux = n => String(n).padStart(2, '0');
     el.textContent = deux(Math.floor(reste / 3600)) + 'h : ' + deux(Math.floor((reste % 3600) / 60)) + 'm : ' + deux(reste % 60) + 's';
   }
-
+ 
   function rendreAccueil() {
     const zone = document.getElementById('rayons');
     const tous = tousLesArticles();
@@ -1995,8 +2058,27 @@
       zone.appendChild(rayon);
     });
     majChrono();
+    rendreSelection(tous);
   }
 
+  // Sélecteur : quelques articles, deux par ligne
+  function rendreSelection(tous) {
+    const bar = document.getElementById('selecteurAccueil');
+    const grille = document.getElementById('grilleSelection');
+    bar.innerHTML = '';
+    ONGLETS.forEach(o => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.setAttribute('role', 'tab'); b.textContent = o.titre;
+      b.setAttribute('aria-selected', o.id === ongletCourant);
+      b.addEventListener('click', () => { ongletCourant = o.id; rendreSelection(tous); });
+      bar.appendChild(b);
+    });
+    if (!ordreRayons[ongletCourant]) ordreRayons[ongletCourant] = melanger(tous).slice(0, 6);
+    grille.innerHTML = '';
+    ordreRayons[ongletCourant].slice(0, 6).forEach(([cat, a], i) => grille.appendChild(carteProduit(cat, a, i)));
+  }
+  document.getElementById('voirPlusSelection').addEventListener('click', () => { choisirCategorie(Object.keys(SOURCES)[0] || 'bijoux'); afficherVue('categories'); });
+ 
   function rendreCategorie() {
     const zone = document.getElementById('grilleCategorie');
     const compte = document.getElementById('catCompte');
@@ -2014,13 +2096,13 @@
     zone.innerHTML = '';
     ordre[catCourante].forEach((a, i) => zone.appendChild(carteProduit(catCourante, a, i)));
   }
-
+ 
   function choisirCategorie(id) {
     catCourante = id;
     delete ordre[id];            // nouvel ordre aléatoire à chaque choix
     rendreCategorie();
   }
-
+ 
   // Barre de gauche : les 8 catégories
   const catListe = document.getElementById('catListe');
   CATEGORIES.forEach(([id, nom, icone]) => {
@@ -2033,12 +2115,13 @@
   // Tuiles et « Voir tout » de l'accueil : ouvrent la page Catégories sur la bonne catégorie
   document.querySelectorAll('.classe[data-cat], .lien[data-cat]').forEach(el =>
     el.addEventListener('click', () => { choisirCategorie(el.dataset.cat); afficherVue('categories'); }));
-
+ 
   /* ----- Détail d'un article : galerie (photo principale + description sur la même ligne) ----- */
   function ouvrirProduit(cat, art) {
     const idVue = document.querySelector('.vue.active').id.replace('vue-', '');
     origineProduit = ['categories', 'favoris', 'recherche'].includes(idVue) ? idVue : 'accueil';
     document.getElementById('retourLibelle').textContent = { categories: 'Catégories', favoris: 'Favoris', recherche: 'Recherche', accueil: 'Accueil' }[origineProduit];
+    majRetourHeader();
     const info = infosArticle(cat, art.n);
     const zone = document.getElementById('detailProduit');
     zone.innerHTML =
@@ -2049,7 +2132,7 @@
         '<div class="detail-section"><h2>Description</h2><p>' + esc(info.desc) + '</p></div>' +
         '<button class="btn-plein" id="btnAjouter" type="button">Ajouter au panier</button>' +
       '</div>';
-
+ 
     zone.querySelector('.galerie').appendChild(boutonCoeur(cat, art.n, true));
     const piste = zone.querySelector('.galerie-piste');
     const vignettes = zone.querySelector('.vignettes');
@@ -2058,7 +2141,7 @@
       [...vignettes.children].forEach((v, k) => v.setAttribute('aria-current', k === i));
       vignettes.hidden = vignettes.children.length < 2;   // une seule photo : pas de vignettes
     };
-
+ 
     [[false, 'principale', info.nom], [true, 'description', 'Description : ' + info.nom]].forEach(([desc, type, alt]) => {
       const url = urlPhoto(cat, art.n, desc);
       const slide = document.createElement('div');
@@ -2079,7 +2162,7 @@
     });
     piste.addEventListener('scroll', majVignettes, { passive: true });
     majVignettes();
-
+ 
     const ajouter = document.getElementById('btnAjouter');
     ajouter.addEventListener('click', () => {
       ajouter.classList.remove('rebond'); void ajouter.offsetWidth; ajouter.classList.add('rebond');
@@ -2093,7 +2176,7 @@
     afficherVue('produit');
   }
   document.getElementById('btnRetourProduit').addEventListener('click', () => afficherVue(origineProduit));
-
+ 
   // Démarrage : la liste connue s'affiche tout de suite, puis détection des nouveaux articles et des infos
   Object.keys(SOURCES).forEach(cat => {
     catalogue[cat] = SOURCES[cat].numeros.map(n => ({ n }));
@@ -2110,25 +2193,25 @@
   rendreAccueil();
   rendreRecherche();
   setInterval(majChrono, 1000);
-
+ 
   /* ----- Identification (Supabase) : inscription et connexion ----- */
   const SUPABASE_URL = 'https://eaexeremqhhaslhkkbmd.supabase.co';
   // Clé « anon » : publique par conception. La sécurité des données repose sur les règles RLS de Supabase
   // (ne mets jamais la clé « service_role » dans ce fichier).
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhZXhlcmVtcWhoYXNsaGtrYm1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1ODI0NjIsImV4cCI6MjEwNzE1ODQ2Mn0.iSfq1qe6C5NE1eTfbrJ6J0Uhf5hYKBSIxtWD4LyjPqQ';
-
+ 
   let supa = null;
   try {
     if (!window.supabase) throw new Error('bibliothèque non chargée');
     supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
   } catch (e) { console.warn('Identification indisponible :', e.message); }
-
+ 
   const byId = id => document.getElementById(id);
   const A = { nom: byId('authNom'), email: byId('authEmail'), tel: byId('authTel'), mdp: byId('authMdp'), mdp2: byId('authMdp2'), note: byId('authNote') };
   const elErreur = byId('authErreur'), elInfo = byId('authInfo'), elValider = byId('authValider');
   let modeAuth = 'connexion', envoiEnCours = false, echecs = 0, verrouJusqua = 0;
   const tactile = window.matchMedia('(pointer: coarse)');   // écran tactile (mobile, tablette) ou souris (ordinateur)
-
+ 
   // ---- Utilisateur affiché dans le header de la section Compte ----
   function appliquerUtilisateur(user) {
     document.body.dataset.connecte = user ? '1' : '0';
@@ -2144,7 +2227,7 @@
     supa.auth.onAuthStateChange((evenement, session) => appliquerUtilisateur(session ? session.user : null));
     supa.auth.getSession().then(({ data }) => appliquerUtilisateur(data.session ? data.session.user : null)).catch(() => {});
   }
-
+ 
   // ---- Validation ----
   const emailValide = v => v.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
   const nomValide = v => /^[\p{L}][\p{L}\s'’.\-]{1,59}$/u.test(v);
@@ -2180,7 +2263,7 @@
     t.textContent = ok ? 'Les mots de passe sont identiques.' : 'Les mots de passe ne correspondent pas.';
     t.className = ok ? 'ok' : 'ko';
   }
-
+ 
   // ---- Messages ----
   const avecDelai = (promesse, ms = 15000) => Promise.race([promesse, new Promise((_, rejeter) => setTimeout(() => rejeter(new Error('timeout')), ms))]);
   function messageErreur(err) {
@@ -2209,7 +2292,7 @@
     const champ = w.querySelector('input');
     if (champ && champ.type !== 'checkbox') champ.focus();
   }
-
+ 
   // ---- Modes ----
   function definirMode(mode) {
     modeAuth = mode;
@@ -2232,14 +2315,14 @@
     // Ordinateur : le premier champ est prêt à saisir. Mobile : on évite d'ouvrir le clavier tout de suite.
     if (!tactile.matches) setTimeout(() => champsVisibles()[0].focus({ preventScroll: true }), 350);
   }
-
+ 
   function enCours(oui) {
     envoiEnCours = oui;
     elValider.disabled = oui;
     elValider.setAttribute('aria-busy', oui);
     elValider.textContent = oui ? (modeAuth === 'inscription' ? 'Création du compte…' : 'Connexion…') : (modeAuth === 'inscription' ? 'S’inscrire' : 'Se connecter');
   }
-
+ 
   // Crée la ligne du profil si elle n'existe pas (sans écraser). Essaie d'abord avec le nom ;
   // si les colonnes nom / full_name n'existent pas dans la table, retombe sur id + e-mail + téléphone.
   async function assurerProfil(user) {
@@ -2252,18 +2335,18 @@
       if (error) console.warn('Profil non créé :', error.code || error.message);
     } catch (e) { console.warn('Profil non créé :', e.message); }
   }
-
+ 
   async function validerAuth() {
     if (envoiEnCours) return;
     effacerErreurs();
     if (!supa) return afficherErreur('Le service d’identification est indisponible. Recharge la page ou réessaie plus tard.');
     const attente = Math.ceil((verrouJusqua - Date.now()) / 1000);
     if (attente > 0) return afficherErreur('Trop d’essais. Réessaie dans ' + attente + ' s.');
-
+ 
     const inscription = modeAuth === 'inscription';
     const email = A.email.value.trim().toLowerCase(), mdp = A.mdp.value;
     let nom = '', tel = null;
-
+ 
     if (inscription) {
       nom = A.nom.value.trim().replace(/\s+/g, ' ');
       tel = normaliserTel(A.tel.value);
@@ -2277,7 +2360,7 @@
       if (!emailValide(email)) return erreurChamp('wrapEmail', 'Entre une adresse e-mail valide.');
       if (!mdp) return erreurChamp('wrapMdp', 'Entre ton mot de passe.');
     }
-
+ 
     enCours(true);
     try {
       if (inscription) {
@@ -2312,7 +2395,7 @@
       enCours(false);
     }
   }
-
+ 
   function apresConnexion(user, message) {
     appliquerUtilisateur(user);
     A.nom.value = ''; A.email.value = ''; A.tel.value = ''; A.mdp.value = ''; A.mdp2.value = ''; A.note.checked = false;
@@ -2320,7 +2403,7 @@
     afficherVue('compte');
     toast(message);
   }
-
+ 
   document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => definirMode(b.dataset.mode)));
   elValider.addEventListener('click', validerAuth);
   Object.values(A).forEach(i => {
@@ -2343,7 +2426,7 @@
     champ.type = visible ? 'text' : 'password';
     b.setAttribute('aria-label', visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
   }));
-
+ 
   byId('btnConnexion').addEventListener('click', () => ouvrirAuth('connexion'));
   byId('btnDeconnexion').addEventListener('click', async () => {
     try { if (supa) await supa.auth.signOut(); } catch (e) { console.warn('Déconnexion :', e.message); }
@@ -2351,12 +2434,12 @@
     window.scrollTo({ top: 0 });
     toast('Tu es déconnecté.');
   });
-
+ 
   /* ----- Recherche (header) : le bouton déploie la barre, puis devient « Fermer » ----- */
   const btnRecherche = document.getElementById('btnRecherche');
   let vueAvantRecherche = 'accueil';
   const rechercheOuverte = () => document.body.classList.contains('recherche-ouverte');
-
+ 
   function ouvrirRecherche() {
     const actuelle = document.querySelector('.vue.active').id.replace('vue-', '');
     if (actuelle !== 'recherche' && actuelle !== 'produit') vueAvantRecherche = actuelle;
@@ -2382,6 +2465,25 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && rechercheOuverte()) fermerRecherche(); });
 </script>
   <script>
+    /* Blocage de la copie et du zoom */
+    (function () {
+      const champ = e => e.target && e.target.closest && e.target.closest('input, textarea');
+      ['copy', 'cut', 'selectstart', 'contextmenu', 'dragstart'].forEach(ev =>
+        document.addEventListener(ev, e => { if (!champ(e)) e.preventDefault(); }));
+      ['gesturestart', 'gesturechange', 'gestureend'].forEach(ev =>
+        document.addEventListener(ev, e => e.preventDefault()));
+      document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+      let dernier = 0;
+      document.addEventListener('touchend', e => {
+        const t = Date.now();
+        if (t - dernier < 300 && !champ(e)) e.preventDefault();
+        dernier = t;
+      }, { passive: false });
+      document.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+      document.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0', 'c', 'x', 'a'].includes(e.key.toLowerCase()) && !champ(e)) e.preventDefault();
+      });
+    })();
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("./service-worker.js").catch(err => console.error("Échec du service worker :", err));
@@ -2390,6 +2492,7 @@
   </script>
 </body>
 </html>
-
-
-
+ 
+ 
+ 
+ 
