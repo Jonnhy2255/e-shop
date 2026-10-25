@@ -1,23 +1,19 @@
 {
-  "id": "./",
   "name": "E-Shop",
   "short_name": "E-Shop",
-  "description": "La boutique E-Shop sur votre appareil.",
+  "description": "E-Shop : découvre et achète tes articles en ligne.",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
+  "lang": "fr",
   "background_color": "#ffffff",
-  "theme_color": "#ff7a00",
+  "theme_color": "#000000",
   "icons": [
-    {
-      "src": "avatar-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "avatar-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
