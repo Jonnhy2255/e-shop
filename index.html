@@ -99,7 +99,7 @@
   }
  
   .logo { display: flex; align-items: center; gap: 2px; text-decoration: none; color: var(--texte); }
-  .logo img { height: 34px; width: auto; display: block; -webkit-user-drag: none; }
+  .logo img { height: 44px; max-height: calc(var(--header-h) - 12px); width: auto; display: block; -webkit-user-drag: none; }
   .logo-texte { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
  
   .btn-icone {
@@ -945,7 +945,7 @@
 <!-- HEADER -->
 <header class="header">
   <button class="retour retour-header" id="retourHeader" type="button" aria-label="Retour"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
-  <a class="logo" href="#" aria-label="E-Shop, accueil"><img src="./logo.png" alt="E-Shop"></a>
+  <a class="logo" href="#" aria-label="E-Shop, accueil"><img src="./logo-h.png" alt="E-Shop"></a>
  
   <div class="header-user" aria-label="Utilisateur connecté">
     <div class="avatar">E</div>
@@ -2492,7 +2492,4 @@
   </script>
 </body>
 </html>
- 
- 
- 
  
